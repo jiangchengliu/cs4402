@@ -53,17 +53,17 @@ public class TetrisQAgent
         // this example will create a 3-layer neural network (1 hidden layer)
         // in this example, the input to the neural network is the
         // image of the board unrolled into a giant vector
-        final int numPixelsInImage = 5;
+        final int numPixelsInImage = 4;
         final int outDim = 1;
 
         Sequential qFunction = new Sequential();
-        qFunction.add(new Dense(numPixelsInImage, 32));
+        qFunction.add(new Dense(numPixelsInImage, 64));
         //qFunction.add(new ReLU());
         qFunction.add(new ReLU());
-        qFunction.add(new Dense(32, 32));
+        qFunction.add(new Dense(64, 64));
         qFunction.add(new ReLU());
         //qFunction.add(new Tanh());
-        qFunction.add(new Dense(32, outDim));        
+        qFunction.add(new Dense(64, outDim));        
 
         return qFunction;
     }
@@ -183,13 +183,12 @@ private int getEmptyCells(GameView game) {
 
 @Override
 public Matrix getQFunctionInput(final GameView game, final Mino potentialAction) {
-    Matrix features = Matrix.zeros(1, 5); 
+    Matrix features = Matrix.zeros(1, 4); 
     try {
         features.set(0, 0, getAggregateHeight(game));
         features.set(0, 1, getHoles(game));
         features.set(0, 2, getBumpiness(game));
         features.set(0, 3, getLinesCleared(game, potentialAction));
-        features.set(0, 4, getEmptyCells(game) - getHoles(game));
     } catch (Exception e) {
         e.printStackTrace();
         System.exit(-1);
@@ -426,8 +425,8 @@ public Matrix getQFunctionInput(final GameView game, final Mino potentialAction)
 
 
         double weightHeight = 0.0001;
-        double weightHoles = 0.0003;
-        double weightBumpiness = 0.0015;
+        double weightHoles = 0.003;
+        double weightBumpiness = 0.015;
 
 
         double normalizedHeight = getAggregateHeight(game) / totalHeight;
@@ -441,7 +440,7 @@ public Matrix getQFunctionInput(final GameView game, final Mino potentialAction)
         reward -= normalizedBumpiness * weightBumpiness; 
 
         if (game.didAgentLose()) {
-            reward -= 1.5;
+            reward -= 1;
         }
         return reward;
     }
